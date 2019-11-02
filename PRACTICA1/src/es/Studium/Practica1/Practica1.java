@@ -3,7 +3,9 @@ package es.Studium.Practica1;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,13 +30,13 @@ public class Practica1 extends JFrame implements ActionListener{
 	JButton btnJuego = new JButton("Abrir Juego");
 	JButton btnTerminar = new JButton("TERMINAR");
 	JButton btnEjecutar = new JButton("Ejecutar");
-	ProcessBuilder pb;
+	JTextArea txtResultadoCmd = new JTextArea();
+
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		ProcessBuilder pb = new ProcessBuilder(args);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -57,8 +59,8 @@ public class Practica1 extends JFrame implements ActionListener{
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-	
-	
+
+
 		btnBlocnotas.setBounds(593, 35, 145, 23);
 		contentPane.add(btnBlocnotas);
 		btnBlocnotas.addActionListener(this);
@@ -83,8 +85,9 @@ public class Practica1 extends JFrame implements ActionListener{
 
 
 		JList ListaProcesos = new JList();
-		ListaProcesos.setBounds(381, 215, 244, 164);
+		ListaProcesos.setBounds(381, 215, 265, 178);
 		contentPane.add(ListaProcesos);
+
 
 
 		btnTerminar.setBounds(651, 232, 99, 23);
@@ -101,9 +104,10 @@ public class Practica1 extends JFrame implements ActionListener{
 		contentPane.add(btnEjecutar);
 		btnEjecutar.addActionListener(this);
 
-		JTextArea txtResultadoCmd = new JTextArea();
-		txtResultadoCmd.setBounds(42, 102, 244, 276);
+
+		txtResultadoCmd.setBounds(24, 70, 291, 336);
 		contentPane.add(txtResultadoCmd);
+		txtResultadoCmd.setLineWrap(true);
 	}
 
 
@@ -111,7 +115,24 @@ public class Practica1 extends JFrame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object objeto = e.getSource();
-	
+
+		if(objeto.equals(btnEjecutar)) {
+			try {  
+				Process p = Runtime.getRuntime().exec("cmd /C "+txtConsultaCmd.getText());  
+				BufferedReader in = new BufferedReader(  
+						new InputStreamReader(p.getInputStream()));  
+				String linea=null;  
+				String acumuladorcmd=null;
+				while ((linea = in.readLine()) != null) {
+					acumuladorcmd=acumuladorcmd+linea;
+					txtResultadoCmd.setText(acumuladorcmd);  
+					System.out.println(acumuladorcmd);
+				}  
+			} catch (IOException a) {  
+				a.printStackTrace();  
+			}
+		}
+
 		if(objeto.equals(btnPaint)) {
 			try {
 
@@ -122,7 +143,7 @@ public class Practica1 extends JFrame implements ActionListener{
 				System.out.println(ex);
 			}
 		}
-		
+
 		if (objeto.equals(btnBlocnotas)) {
 			try {
 
