@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -111,9 +113,10 @@ public class Practica1 extends JFrame implements ActionListener{
 		txtResultadoCmd.setBounds(24, 70, 291, 336);
 		contentPane.add(txtResultadoCmd);
 		txtResultadoCmd.setLineWrap(true);
+		ListaProcesos.addActionListener(this);
 		mostrarlistatareas();
+
 	}
-		
 		
 
 	public void mostrarlistatareas() {
@@ -126,6 +129,7 @@ public class Practica1 extends JFrame implements ActionListener{
 			BufferedReader reader= new BufferedReader(new InputStreamReader(proceso.getInputStream()));
 			String pros=null;
 			String nombreProceso="";
+			
 			//Mientras se leamos una linea del BufferedReader y no este vacía...
 			while((pros=reader.readLine()) !=null) {
 				//Convertimos la cadena pros(lee una línea del InputStream) en un array de caracteres.
@@ -133,6 +137,9 @@ public class Practica1 extends JFrame implements ActionListener{
 				//Metemos cada proceso en una String.
 				for (int it=0;it<array.length;it++) {
 					nombreProceso+=String.valueOf(array[it]);
+					//De esta forma solo coge los primeros caracteres del proceso (la parte que importa),
+					//lo que nos sera muy útil después a la hora de terminar los procesos.
+					if(array[it]==' ')break;else continue;
 				}
 				//Añadimos cada elemento extraido en el vector. Ponemos trim para eliminar los espacios en blanco de 
 				//inicio y final de cada String.
@@ -144,8 +151,8 @@ public class Practica1 extends JFrame implements ActionListener{
 			//no podemos añadir un vector a una lista de esta forma.
 			for(int it2=0;it2<vectorProcesos.size();it2++) 
 				ListaProcesos.add(vectorProcesos.get(it2));
-			
 		}
+		
 		catch (Exception o){
 			System.out.println(o);
 		}
@@ -159,25 +166,27 @@ public class Practica1 extends JFrame implements ActionListener{
 		if(objeto.equals(btnEjecutar)) {
 			try {  
 				Process p = Runtime.getRuntime().exec("cmd /C "+txtConsultaCmd.getText());  
-				BufferedReader in = new BufferedReader(  
-						new InputStreamReader(p.getInputStream()));  
+				BufferedReader in = new BufferedReader( new InputStreamReader(p.getInputStream()));  
 				String linea=null;  
 				String acumuladorcmd=null;
+				ListaProcesos.removeAll();
 				while ((linea = in.readLine()) != null) {
 					acumuladorcmd=acumuladorcmd+linea;
 					txtResultadoCmd.setText(acumuladorcmd);  
-					System.out.println(acumuladorcmd);
 				}  
 			} catch (IOException a) {  
 				a.printStackTrace();  
 			}
+			ListaProcesos.removeAll();
+			mostrarlistatareas();
 		}
 
 		if(objeto.equals(btnPaint)) {
 			try {
 
 				Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\mspaint.exe");
-
+				ListaProcesos.removeAll();
+				mostrarlistatareas();
 			} catch (IOException ex) {
 
 				System.out.println(ex);
@@ -188,7 +197,8 @@ public class Practica1 extends JFrame implements ActionListener{
 			try {
 
 				Runtime.getRuntime().exec("C:\\WINDOWS\\system32\\notepad.exe");
-
+				ListaProcesos.removeAll();
+				mostrarlistatareas();
 			} catch (IOException ex) {
 
 				System.out.println(ex);
@@ -198,7 +208,8 @@ public class Practica1 extends JFrame implements ActionListener{
 			try {
 
 				Runtime.getRuntime().exec("C:\\Users\\PABLO\\Documents\\DAM\\PROGRAMACION\\EXE PROGRAMA GESTION\\PROGRAMA GESTION PABLO DOMINGUEZ.exe");
-
+				ListaProcesos.removeAll();
+				mostrarlistatareas();
 			} catch (IOException ex) {
 
 				System.out.println(ex);
@@ -209,12 +220,24 @@ public class Practica1 extends JFrame implements ActionListener{
 			try {
 
 				Runtime.getRuntime().exec("C:\\Users\\PABLO\\Documents\\DAM\\PROGRAMACION\\JUEGO\\EXE JUEGO\\AJEDREZ_PABLODOMINGUEZ.exe");
-
+				ListaProcesos.removeAll();
+				mostrarlistatareas();
 			} catch (IOException ex) {
 
 				System.out.println(ex);
 			}
 
+		}
+		if(objeto.equals(btnTerminar)) {
+			try {
+				Process eliminar = Runtime.getRuntime().exec("cmd /C taskkill /im "+ListaProcesos.getSelectedItem());
+				ListaProcesos.removeAll();
+				mostrarlistatareas();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}  
+			
 		}
 	}
 }
