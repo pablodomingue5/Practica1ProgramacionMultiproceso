@@ -1,16 +1,17 @@
 package es.Studium.Practica1;
 
 import java.awt.EventQueue;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -31,6 +32,7 @@ public class Practica1 extends JFrame implements ActionListener{
 	JButton btnTerminar = new JButton("TERMINAR");
 	JButton btnEjecutar = new JButton("Ejecutar");
 	JTextArea txtResultadoCmd = new JTextArea();
+	List ListaProcesos = new List();
 
 
 	/**
@@ -82,9 +84,9 @@ public class Practica1 extends JFrame implements ActionListener{
 		JLabel lblProcesosActivos = new JLabel("Procesos Activos");
 		lblProcesosActivos.setBounds(388, 190, 123, 14);
 		contentPane.add(lblProcesosActivos);
+		
 
 
-		JList ListaProcesos = new JList();
 		ListaProcesos.setBounds(381, 215, 265, 178);
 		contentPane.add(ListaProcesos);
 
@@ -108,9 +110,35 @@ public class Practica1 extends JFrame implements ActionListener{
 		txtResultadoCmd.setBounds(24, 70, 291, 336);
 		contentPane.add(txtResultadoCmd);
 		txtResultadoCmd.setLineWrap(true);
+		mostrarlistatareas();
 	}
+		
+		
 
-
+	public void mostrarlistatareas() {
+		final String comandoProcesos="CMD /C tasklist /nh";
+		Vector <String> vectorProcesos=new Vector<String>();
+		try {
+			final Process proceso=Runtime.getRuntime().exec(comandoProcesos);
+			BufferedReader reader= new BufferedReader(new InputStreamReader(proceso.getInputStream()));
+			String pros=null;
+			String nombreProceso="";
+			while((pros=reader.readLine()) !=null) {
+				char[]array=pros.toCharArray();
+				for (int it=0;it<array.length;it++) {
+					nombreProceso +=String.valueOf(array[it]);
+				}
+				vectorProcesos.addElement(nombreProceso.trim().toUpperCase());
+				nombreProceso="";
+			}
+			for(int it2=0;it2<vectorProcesos.size();it2++) 
+				ListaProcesos.add(vectorProcesos.get(it2));
+		}
+		catch (Exception o){
+			System.out.println(o);
+		}
+		
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
