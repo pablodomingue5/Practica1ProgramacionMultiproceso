@@ -33,6 +33,7 @@ public class Practica1 extends JFrame implements ActionListener{
 	JButton btnEjecutar = new JButton("Ejecutar");
 	JTextArea txtResultadoCmd = new JTextArea();
 	List ListaProcesos = new List();
+	
 
 
 	/**
@@ -119,20 +120,31 @@ public class Practica1 extends JFrame implements ActionListener{
 		final String comandoProcesos="CMD /C tasklist /nh";
 		Vector <String> vectorProcesos=new Vector<String>();
 		try {
+			//Creamos el proceso que ejecutará en el cmd el tasklist.
 			final Process proceso=Runtime.getRuntime().exec(comandoProcesos);
+			//Creamos un bufferedreader que almacena el inputstream de proceso.
 			BufferedReader reader= new BufferedReader(new InputStreamReader(proceso.getInputStream()));
 			String pros=null;
 			String nombreProceso="";
+			//Mientras se leamos una linea del BufferedReader y no este vacía...
 			while((pros=reader.readLine()) !=null) {
+				//Convertimos la cadena pros(lee una línea del InputStream) en un array de caracteres.
 				char[]array=pros.toCharArray();
+				//Metemos cada proceso en una String.
 				for (int it=0;it<array.length;it++) {
-					nombreProceso +=String.valueOf(array[it]);
+					nombreProceso+=String.valueOf(array[it]);
 				}
-				vectorProcesos.addElement(nombreProceso.trim().toUpperCase());
+				//Añadimos cada elemento extraido en el vector. Ponemos trim para eliminar los espacios en blanco de 
+				//inicio y final de cada String.
+				vectorProcesos.addElement(nombreProceso.trim());
 				nombreProceso="";
+				
 			}
+			//Añadimos cada elemento del vector a la tabla. Tenemos que usar un List de AWT, con JList 
+			//no podemos añadir un vector a una lista de esta forma.
 			for(int it2=0;it2<vectorProcesos.size();it2++) 
 				ListaProcesos.add(vectorProcesos.get(it2));
+			
 		}
 		catch (Exception o){
 			System.out.println(o);
