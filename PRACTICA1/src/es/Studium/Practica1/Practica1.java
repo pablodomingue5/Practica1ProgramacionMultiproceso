@@ -2,6 +2,7 @@ package es.Studium.Practica1;
 
 import java.awt.EventQueue;
 import java.awt.List;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -35,7 +36,8 @@ public class Practica1 extends JFrame implements ActionListener{
 	JButton btnEjecutar = new JButton("Ejecutar");
 	JTextArea txtResultadoCmd = new JTextArea();
 	List ListaProcesos = new List();
-	
+	Vector <String> vectorProcesos=new Vector<String>();
+	Vector <String> vectorProcesosparacomprobar=new Vector<String>();
 
 
 	/**
@@ -55,7 +57,7 @@ public class Practica1 extends JFrame implements ActionListener{
 	}
 
 
-	public Practica1() {
+	public Practica1() throws IOException{
 		setTitle("PRACTICA 1 PMP ");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 785, 470);
@@ -115,13 +117,128 @@ public class Practica1 extends JFrame implements ActionListener{
 		txtResultadoCmd.setLineWrap(true);
 		ListaProcesos.addActionListener(this);
 		mostrarlistatareas();
-
+		procesosActivos();
+		timerPaint();
+		timerNotepad(); 
+		
 	}
 		
 
+	public void timerPaint() throws IOException {
+		TimerTask timerTaskPaint = new TimerTask()
+	     {
+	         public void run() 
+	         {
+	        	 try {
+	        		 //Borramos el vector para que se actualice realmente cada vez que pasa por aquí.
+	        		 vectorProcesosparacomprobar.clear();
+					procesosActivos();
+					 if (vectorProcesosparacomprobar.contains("mspaint.exe")){
+		        		 btnPaint.setEnabled(false);
+		     		}
+		        	 else {
+		        		 btnPaint.setEnabled(true);
+		        	 }
+					 
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	        
+	         }
+	     };
+	      // Aquí se pone en marcha el timer cada segundo.
+	     Timer timer = new Timer();
+	     // Ponemos que se actualice cada 1000 milisegundos (1 segundo).
+	     timer.scheduleAtFixedRate(timerTaskPaint, 0, 1000);
+
+	}
+	public void timerNotepad() {
+		TimerTask timerTaskPaint = new TimerTask()
+	     {
+	         public void run() 
+	         {
+	        	 try {
+	        		 //Borramos el vector para que se actualice realmente cada vez que pasa por aquí.
+	        		 vectorProcesosparacomprobar.clear();
+					procesosActivos();
+					 if (vectorProcesosparacomprobar.contains("notepad.exe")){
+		        		 btnBlocnotas.setEnabled(false);
+		     		}
+		        	 else {
+		        		 btnBlocnotas.setEnabled(true);
+		        	 }
+					 
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	        
+	         }
+	     };
+	      // Aquí se pone en marcha el timer cada segundo.
+	     Timer timer = new Timer();
+	     // Ponemos que se actualice cada 1000 milisegundos (1 segundo).
+	     timer.scheduleAtFixedRate(timerTaskPaint, 0, 1000);
+	}
+	//ME HE QUEDADO EN TIMERJUEGO, EL PROBLEMA ES QUE LOS PROCESOS JAVA 
+	//SE LLAMAN TODOS JAVAW.EXE, POR LO TANTO NO PUEDO IDENTIFICAR ESTE 
+	//PROCESO DE MANERA UNICA
+	public void timerJuego() {
+		TimerTask timerTaskPaint = new TimerTask()
+	     {
+	         public void run() 
+	         {
+	        	 try {
+	        		 //Borramos el vector para que se actualice realmente cada vez que pasa por aquí.
+	        		 vectorProcesosparacomprobar.clear();
+					procesosActivos();
+					 if (vectorProcesosparacomprobar.contains("notepad.exe")){
+		        		 btnJuego.setEnabled(false);
+		     		}
+		        	 else {
+		        		 btnJuego.setEnabled(true);
+		        	 }
+					 
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	        
+	         }
+	     };
+	      // Aquí se pone en marcha el timer cada segundo.
+	     Timer timer = new Timer();
+	     // Ponemos que se actualice cada 1000 milisegundos (1 segundo).
+	     timer.scheduleAtFixedRate(timerTaskPaint, 0, 1000);
+	}
+	
+	
+	public void procesosActivos() throws IOException{
+		final String comandoProcesos="CMD /C tasklist /nh";
+		final Process proceso=Runtime.getRuntime().exec(comandoProcesos);
+		//Creamos un bufferedreader que almacena el inputstream de proceso.
+		BufferedReader reader= new BufferedReader(new InputStreamReader(proceso.getInputStream()));
+		String pros=null;
+		String nombreProceso="";
+		//Mientras se leamos una linea del BufferedReader y no este vacía...
+		while((pros=reader.readLine()) !=null) {
+			//Convertimos la cadena pros(lee una línea del InputStream) en un array de caracteres.
+			char[]array=pros.toCharArray();
+			//Metemos cada proceso en una String.
+			for (int it=0;it<array.length;it++) {
+				nombreProceso+=String.valueOf(array[it]);
+				//De esta forma solo coge los primeros caracteres del proceso (la parte que importa),
+				//lo que nos sera muy útil después a la hora de terminar los procesos.
+				if(array[it]==' ')break;else continue;
+			}
+			//Añadimos cada elemento extraido en el vector. Ponemos trim para eliminar los espacios en blanco de 
+			//inicio y final de cada String.
+			vectorProcesosparacomprobar.addElement(nombreProceso.trim());
+			nombreProceso="";
+			
+		}
+	}
+
 	public void mostrarlistatareas() {
 		final String comandoProcesos="CMD /C tasklist /nh";
-		Vector <String> vectorProcesos=new Vector<String>();
 		try {
 			//Creamos el proceso que ejecutará en el cmd el tasklist.
 			final Process proceso=Runtime.getRuntime().exec(comandoProcesos);
@@ -172,7 +289,7 @@ public class Practica1 extends JFrame implements ActionListener{
 				ListaProcesos.removeAll();
 				while ((linea = in.readLine()) != null) {
 					acumuladorcmd=acumuladorcmd+linea;
-					txtResultadoCmd.setText(acumuladorcmd);  
+					txtResultadoCmd.setText(acumuladorcmd); 
 				}  
 			} catch (IOException a) {  
 				a.printStackTrace();  
